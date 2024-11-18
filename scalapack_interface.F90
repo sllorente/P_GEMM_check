@@ -70,17 +70,12 @@ module scalapack_interface
          import
          character, intent(in) :: transa, transb
          integer, intent(in) :: mm, nn, kk
-         complex(kind=dp), intent(in) :: alpha
-         integer, intent(in) :: desca(*)
-         complex(kind=dp), intent(in) :: aa(desca(lld_), *)
-         integer, intent(in) :: ia, ja
-         integer, intent(in) :: descb(*)
-         complex(kind=dp), intent(in) :: bb(descb(lld_), *)
-         integer, intent(in) :: ib, jb
-         complex(kind=dp), intent(in) :: beta
-         integer, intent(in) :: descc(*)
-         complex(kind=dp), intent(inout) :: cc(descb(lld_), *)
-         integer, intent(in) :: ic, jc
+         integer, intent(in) :: desca(*), ia, ja
+         integer, intent(in) :: descb(*), ib, jb
+         integer, intent(in) :: descc(*), ic, jc
+         complex(kind=dp), intent(in) :: alpha, beta
+         complex(kind=dp), intent(in) :: aa(*), bb(*)
+         complex(kind=dp), intent(inout) :: cc(*)
       end subroutine pzgemm
       
       subroutine pdgemm(transa, transb, mm, nn, kk, alpha, aa, ia, ja, desca, &
@@ -88,17 +83,12 @@ module scalapack_interface
          import
          character, intent(in) :: transa, transb
          integer, intent(in) :: mm, nn, kk
-         real(kind=dp), intent(in) :: alpha
-         integer, intent(in) :: desca(*)
-         real(kind=dp), intent(in) :: aa(desca(lld_), *)
-         integer, intent(in) :: ia, ja
-         integer, intent(in) :: descb(*)
-         real(kind=dp), intent(in) :: bb(descb(lld_), *)
-         integer, intent(in) :: ib, jb
-         real(kind=dp), intent(in) :: beta
-         integer, intent(in) :: descc(*)
-         real(kind=dp), intent(inout) :: cc(descb(lld_), *)
-         integer, intent(in) :: ic, jc
+         integer, intent(in) :: desca(*), ia, ja
+         integer, intent(in) :: descb(*), ib, jb
+         integer, intent(in) :: descc(*), ic, jc
+         real(kind=dp), intent(in) :: alpha, beta
+         real(kind=dp), intent(in) :: aa(*), bb(*)
+         real(kind=dp), intent(inout) :: cc(*)
       end subroutine pdgemm
 
       subroutine pcgemm(transa, transb, mm, nn, kk, alpha, aa, ia, ja, desca, &
@@ -106,17 +96,12 @@ module scalapack_interface
          import
          character, intent(in) :: transa, transb
          integer, intent(in) :: mm, nn, kk
-         complex(kind=sp), intent(in) :: alpha
-         integer, intent(in) :: desca(*)
-         complex(kind=sp), intent(in) :: aa(desca(lld_), *)
-         integer, intent(in) :: ia, ja
-         integer, intent(in) :: descb(*)
-         complex(kind=sp), intent(in) :: bb(descb(lld_), *)
-         integer, intent(in) :: ib, jb
-         complex(kind=sp), intent(in) :: beta
-         integer, intent(in) :: descc(*)
-         complex(kind=sp), intent(inout) :: cc(descb(lld_), *)
-         integer, intent(in) :: ic, jc
+         integer, intent(in) :: desca(*), ia, ja
+         integer, intent(in) :: descb(*), ib, jb
+         integer, intent(in) :: descc(*), ic, jc
+         complex(kind=sp), intent(in) :: alpha, beta
+         complex(kind=sp), intent(in) :: aa(*), bb(*)
+         complex(kind=sp), intent(inout) :: cc(*)
       end subroutine pcgemm
       
       subroutine psgemm(transa, transb, mm, nn, kk, alpha, aa, ia, ja, desca, &
@@ -124,18 +109,66 @@ module scalapack_interface
          import
          character, intent(in) :: transa, transb
          integer, intent(in) :: mm, nn, kk
-         real(kind=sp), intent(in) :: alpha
-         integer, intent(in) :: desca(*)
-         real(kind=sp), intent(in) :: aa(desca(lld_), *)
-         integer, intent(in) :: ia, ja
-         integer, intent(in) :: descb(*)
-         real(kind=sp), intent(in) :: bb(descb(lld_), *)
-         integer, intent(in) :: ib, jb
-         real(kind=sp), intent(in) :: beta
-         integer, intent(in) :: descc(*)
-         real(kind=sp), intent(inout) :: cc(descb(lld_), *)
-         integer, intent(in) :: ic, jc
+         integer, intent(in) :: desca(*), ia, ja
+         integer, intent(in) :: descb(*), ib, jb
+         integer, intent(in) :: descc(*), ic, jc
+         real(kind=sp), intent(in) :: alpha, beta
+         real(kind=sp), intent(in) :: aa(*), bb(*)
+         real(kind=sp), intent(inout) :: cc(*)
       end subroutine psgemm
+
+      subroutine psger(mm, nn, alpha, xx, ix, jx, descx, incx, &
+            yy, iy, jy, descy, incy, aa, ia, ja, desca)
+         import
+         integer, intent(in) :: mm, nn
+         integer, intent(in) :: descx(*), ix, jx, incx
+         integer, intent(in) :: descy(*), iy, jy, incy
+         integer, intent(in) :: desca(*), ia, ja
+         real(kind=sp), intent(in) :: alpha
+         real(kind=sp), intent(in) :: xx(*)
+         real(kind=sp), intent(in) :: yy(*)
+         real(kind=sp), intent(inout) :: aa(*)
+      end subroutine psger
+
+      subroutine pdger(mm, nn, alpha, xx, ix, jx, descx, incx, &
+            yy, iy, jy, descy, incy, aa, ia, ja, desca)
+         import
+         integer, intent(in) :: mm, nn
+         integer, intent(in) :: descx(*), ix, jx, incx
+         integer, intent(in) :: descy(*), iy, jy, incy
+         integer, intent(in) :: desca(*), ia, ja
+         real(kind=dp), intent(in) :: alpha
+         real(kind=dp), intent(in) :: xx(*)
+         real(kind=dp), intent(in) :: yy(*)
+         real(kind=dp), intent(inout) :: aa(*)
+      end subroutine pdger
+
+      subroutine pcgeru(mm, nn, alpha, xx, ix, jx, descx, incx, &
+            yy, iy, jy, descy, incy, aa, ia, ja, desca)
+         import
+         integer, intent(in) :: mm, nn
+         integer, intent(in) :: descx(*), ix, jx, incx
+         integer, intent(in) :: descy(*), iy, jy, incy
+         integer, intent(in) :: desca(*), ia, ja
+         complex(kind=sp), intent(in) :: alpha
+         complex(kind=sp), intent(in) :: xx(*)
+         complex(kind=sp), intent(in) :: yy(*)
+         complex(kind=sp), intent(inout) :: aa(*)
+      end subroutine pcgeru
+
+      subroutine pzgeru(mm, nn, alpha, xx, ix, jx, descx, incx, &
+            yy, iy, jy, descy, incy, aa, ia, ja, desca)
+         import
+         integer, intent(in) :: mm, nn
+         integer, intent(in) :: descx(*), ix, jx, incx
+         integer, intent(in) :: descy(*), iy, jy, incy
+         integer, intent(in) :: desca(*), ia, ja
+         complex(kind=dp), intent(in) :: alpha
+         complex(kind=dp), intent(in) :: xx(*)
+         complex(kind=dp), intent(in) :: yy(*)
+         complex(kind=dp), intent(inout) :: aa(*)
+      end subroutine pzgeru
+
    end interface
 
 end module scalapack_interface

@@ -21,31 +21,39 @@ program test_pzgemm
 
 #if defined(fD)
 #define PGEMM pdgemm
+#define PGERU pdger
+#define PSYRK pdsyrk
    real(kind=dp), allocatable :: C(:), B(:)
    real(kind=dp) :: alpha, beta
    real(kind=dp), parameter :: ONE = 1.0_dp, ZERO = 0.0_dp
 #elif defined(fC) 
 #define PGEMM pcgemm
+#define PGERU pcgeru
+#define PSYRK pcsyrk
    complex(kind=sp), allocatable :: C(:), B(:)
    complex(kind=sp) :: alpha, beta
    complex(kind=sp), parameter :: ONE = (1.0_sp, 0.0_sp), ZERO = (0.0_sp, 0.0_sp)
 #elif defined(fZ)   
 #define PGEMM pzgemm
+#define PGERU pzgeru
+#define PSYRK pzsyrk
    complex(kind=dp), allocatable :: C(:), B(:)
    complex(kind=dp) :: alpha, beta
    complex(kind=dp), parameter :: ONE = (1.0_dp, 0.0_dp), ZERO = (0.0_dp, 0.0_dp)
 #else
 #define PGEMM psgemm
+#define PGERU psger
+#define PSYRK pssyrk
    real(kind=sp), allocatable :: C(:), B(:)
    real(kind=sp) :: alpha, beta
    real(kind=sp), parameter :: ONE = 1.0_sp, ZERO = 0.0_sp
 #endif
 
    integer :: Cdesc(dlen_), Bdesc(dlen_)
-   integer :: ictxt, nprow, npcol,  myprow, mypcol
+   integer :: ictxt, nprow, npcol, myprow, mypcol
 
    integer(kind=int32) :: np, ierror, myrank, dims(2)
-   integer :: nfails, total_nfails
+   integer :: i, nfails, total_nfails
 
    call MPI_Init(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, myrank, ierror)
@@ -73,9 +81,23 @@ program test_pzgemm
    alpha = -ONE 
    beta  =  ONE 
   
+   ! Test using p?gemm
    call PGEMM ('N', 'N', N2, N2, N1, &
       alpha, C, N1 + 1, 1, Cdesc, C, 1, N1 + 1, Cdesc, &
       beta, B, 1, 1, Bdesc)
+   ! Test using p?ger or p?geru
+   !do i = 1, N1
+   !   call PGERU (N2, N2, &
+   !      alpha, &
+   !      C, N1 + 1, i, Cdesc, 1, &
+   !      C, i, N1 + 1, Cdesc, N1+N2, &
+   !      B, 1, 1, Bdesc)
+   !enddo
+
+   ! Test using p?syrk
+   !call PSYRK ('L', 'N', N2, N1, &
+   !   alpha, C, N1 + 1, 1, Cdesc, &
+   !   beta, B, 1, 1, Bdesc)
 
    call check_matrix(B, Bdesc, nfails)
    call MPI_Reduce(nfails, total_nfails, 1_int32, MPI_INTEGER, MPI_SUM, 0_int32, MPI_COMM_WORLD, ierror)
@@ -147,6 +169,7 @@ contains
                idx = (lc - 1)*desc(lld_) + lr
                gr = indxl2g(lr , mb, myprow, 0, nprow)
                gc = indxl2g(lc , nb, mypcol, 0, npcol)
+               !if (gr < gc) cycle
                if (A(idx) /= ZERO) then 
                   if (counter < MAX_PRINTED_LINES_PER_PROC) then
                      write (stdout, '("B(", I0, ", ", I0, ")", T15, " = ")', advance="no") gr, gc
