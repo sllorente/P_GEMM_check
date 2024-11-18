@@ -8,8 +8,9 @@ B = C21 * C12 - B
 
 where C12 and C21 are the submatrices:
 
-C21 = C(N1+1:N1+N2, 1:N1      )
-C12 = C(1:N1      , N1+1:N1+N2)
+C21 = C(N1+1:N1+N2, 1:N1)
+
+C12 = C(1:N1, N1+1:N1+N2)
 
 All coefficients of matrix C are set to 1, and all coeffs of matrix B are 
 initially set to N1. The expected result is therefore that all coeffs of B end 
