@@ -40,5 +40,5 @@ The error occurs for mkl versions 2022.2.0, 2024.0 and 2025.0 (and probably othe
 
 When linking with a manually compiled version of Scalapack 2.2.0, the subroutine p?gemm returns the expected values and the test program terminate without displaying any erroneous values.
 
-This problem may be related to the one described in 
-[this post at Intel forums](https://community.intel.com/t5/Intel-oneAPI-Math-Kernel-Library/PDGEMM-returns-wrong-result-under-specific-conditions/m-p/1144836)
+This problem is similar to the one described in 
+[this post at Intel forums](https://community.intel.com/t5/Intel-oneAPI-Math-Kernel-Library/PDGEMM-returns-wrong-result-under-specific-conditions/m-p/1144836) (which was apparently fixed in MKL 2019u1) but operating with submatrices.
