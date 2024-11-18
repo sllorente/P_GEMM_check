@@ -21,7 +21,7 @@ up equal to 0.
 ```
 $ make
 ```
-It is assumed that the intel compilers are installed, and the environment variables are properly set.s
+It is assumed that the intel compilers are installed, and the environment variables are properly set.
 
 ## Run test
 ```
