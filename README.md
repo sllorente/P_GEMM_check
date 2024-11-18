@@ -1,11 +1,19 @@
 # test_p?gemm
 Program to check the correct functioning of the p?gemm subroutines in the the mkl_scalapack library.
 
-The test compute the following operation using the subroutine p?gemm:
+The program defines a N2 x N2 distributed matrix B, and a (N1+N2) x (N2+N1) 
+distributed matrix C; and compute the following operation using the subroutine p?gemm:
 
-B(1:N2, 1:N2) = C(N1+1:N1+N2, 1:N1)*C(1:N1, N1+1:N1+N2) - B(1:N2, 1:N2)
+B = C21 * C12 - B
 
-where all coefficients of matrix C are set to 1, and all coeffs of matrix B are initially set to N1. The expected result is therefore that all coeffs of B are equal to 0 after the computation.
+where C12 and C21 are the submatrices:
+
+C21 = C(N1+1:N1+N2, 1:N1      )
+C12 = C(1:N1      , N1+1:N1+N2)
+
+All coefficients of matrix C are set to 1, and all coeffs of matrix B are 
+initially set to N1. The expected result is therefore that all coeffs of B end 
+up equal to 0.
 
 
 ## Compile
