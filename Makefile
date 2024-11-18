@@ -56,6 +56,8 @@ $(EXEC): % : $(SRC)
 	for i in $(subst .F90,,$^) ; do $(FF) $(FFLAGS) -o $(obj_path)/$$i.o $(obj_path)/$$i.f90 ; done
 	$(LD) $(LDFLAGS) -o $@ $(addprefix $(obj_path)/, $(subst .F90,.o,$+)) $(LIB) 
 
+test_duchemin: test_duchemin.F90
+	$(LD) $(LDFLAGS) $(LIB) -o $@ $^ 
 
 test_d: test_pdgemm
 test_s: test_psgemm
@@ -79,5 +81,5 @@ clean:
 	-rm -f $(obj_path)/*.mod 
 
 realclean: clean
-	-rm -f $(EXEC)
+	-rm -f $(EXEC) test_duchemin
 
