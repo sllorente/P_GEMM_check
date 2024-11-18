@@ -17,7 +17,7 @@ program test_pzgemm
    implicit none
 
    integer, parameter :: mb=4, nb=4, N1=4*5, N2=2**10 + 1 
-   integer, parameter :: MAX_PRINTED_LINES=20
+   integer, parameter :: MAX_PRINTED_LINES_PER_PROC=5
 
 #if defined(fD)
 #define PGEMM pdgemm
@@ -45,6 +45,7 @@ program test_pzgemm
    integer :: ictxt, nprow, npcol,  myprow, mypcol
 
    integer(kind=int32) :: np, ierror, myrank, dims(2)
+   integer :: nfails, total_nfails
 
    call MPI_Init(ierror)
    call MPI_Comm_rank(MPI_COMM_WORLD, myrank, ierror)
@@ -55,9 +56,12 @@ program test_pzgemm
    nprow = dims(2)
 
    if (myrank == 0) then 
-      write(stdout,*) 'Proc = ', np
-      write(stdout,*) 'Rows = ', nprow
-      write(stdout,*) 'Cols = ', npcol
+      write(stdout, '(/,"Procs = ", I0, "; Grid = (", I0, " x ", I0, ")")') &
+         np, nprow, npcol
+      write(stdout, '("mb = ", I0)', advance='no') mb
+      write(stdout, '("; nb = ", I0)', advance='no') nb
+      write(stdout, '("; N1 = ", I0)', advance='no') N1
+      write(stdout, '("; N2 = ", I0)') N2
    endif
 
    call blacs_get(0, 0, ictxt)
@@ -73,10 +77,12 @@ program test_pzgemm
       alpha, C, N1 + 1, 1, Cdesc, C, 1, N1 + 1, Cdesc, &
       beta, B, 1, 1, Bdesc)
 
-   call check_matrix(B, Bdesc)
+   call check_matrix(B, Bdesc, nfails)
+   call MPI_Reduce(nfails, total_nfails, 1_int32, MPI_INTEGER, MPI_SUM, 0_int32, MPI_COMM_WORLD, ierror)
+   if (myrank == 0) then
+      if (total_nfails == 0) write (stdout, '(A)') "TEST PASSED!"
+   endif
 
-   !call print_matrix(B, N2, N2, 1, 1, Bdesc, '/tmp/B')
-   
    call blacs_gridexit(ictxt)
    call blacs_exit(1) 
    call MPI_Finalize(ierror)
@@ -115,7 +121,7 @@ contains
       endif
    end subroutine initialize_matrix
    
-   subroutine check_matrix(A, desc)
+   subroutine check_matrix(A, desc, counter)
 #if defined(fD) 
       real(kind=dp), intent(in) :: A(:)
 #elif defined(fC) 
@@ -126,8 +132,9 @@ contains
       real(kind=sp), intent(in) :: A(:)
 #endif
       integer, intent(in) :: desc(dlen_)
+      integer, intent(out) :: counter
 
-      integer :: ir, ic, mloc, nloc, counter, idx
+      integer :: lr, lc, gr, gc, mloc, nloc, idx
 
       counter = 0
       
@@ -135,18 +142,26 @@ contains
          mloc = numroc(desc(m_), desc(mb_), myprow, 0, nprow)
          nloc = numroc(desc(n_), desc(nb_), mypcol, 0, npcol)
 
-         do ir = 1, mloc
-            do ic = 1, nloc
-               idx = (ic - 1)*desc(lld_) + ir
+         do lr = 1, mloc
+            do lc = 1, nloc
+               idx = (lc - 1)*desc(lld_) + lr
+               gr = indxl2g(lr , mb, myprow, 0, nprow)
+               gc = indxl2g(lc , nb, mypcol, 0, npcol)
                if (A(idx) /= ZERO) then 
-                  print *, &
-                     indxl2g(ir , mb, myprow, 0, nprow), &
-                     indxl2g(ic , nb, mypcol, 0, npcol), A(idx)
+                  if (counter < MAX_PRINTED_LINES_PER_PROC) then
+                     write (stdout, '("B(", I0, ", ", I0, ")", T15, " = ")', advance="no") gr, gc
+                     write (stdout, *) A(idx)
+                  endif
                   counter = counter + 1
                endif
-            enddo
+            enddo 
          enddo
+         if (counter >= MAX_PRINTED_LINES_PER_PROC) write(stdout, '(A)') '...'
       endif
+      call blacs_barrier(ictxt, 'A')
+      if (counter > 0) write(stdout, &
+            '("TEST FAILED in proc (", I0, ", ", I0, ") with ", I0, " errors")') &
+            myprow, mypcol, counter
    end subroutine check_matrix
 
 end program test_pzgemm

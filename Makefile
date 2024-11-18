@@ -4,13 +4,9 @@ SRC = scalapack_interface.F90 test_pvgemm.F90
 obj_path = _obj_d
 
 ifdef MKLROOT
-# Intel ifx
-INCLUDE =
-LIBRARY_PATH = $(LD_LIBRARY_PATH)
+# Intel ifx using MKL ScaLapack
 ifdef STATICSCALAPACK
-LIB = -L/home/sllorente/src/scalapack -lscalapack
-#LIB = -L/home/sllorente/src/scalapack-1.8.0 -lscalapack \
-#		-L/home/sllorente/src/BLACS/ -Wl,--start-group -lblacs -lblacsCinit -lblacsF77init -Wl,--end-group
+LIB = -L$(HOME)/src/scalapack -lscalapack
 else
 ifdef ILP
 LIB = -lmkl_scalapack_ilp64  -lmkl_blacs_intelmpi_ilp64
@@ -24,7 +20,7 @@ endif
 FPP = ifx -E
 FF  = mpiifx -c
 LD  = mpiifx
-FFLAGS = -warn all -module $(obj_path) -I./$(obj_path) $(INCLUDE)
+FFLAGS = -warn all -module $(obj_path) -I./$(obj_path)
 ifdef ILP
 FFLAGS := -i8 -qmkl-ilp64=parallel $(FFLAGS)
 LDFLAGS = -qmkl-ilp64=parallel
@@ -38,8 +34,6 @@ else
 # apt install gfortran 
 # apt install libopenmpi-dev 
 # apt install libscalapack-openmpi2.1 libscalapack-openmpi2.1-dev
-INCLUDE =
-LIBRARY_PATH = $(LD_LIBRARY_PATH)
 LIB = -lscalapack-openmpi 
 FPP = gfortran -E
 FF = mpifort -c -J $(obj_path)
